@@ -2,14 +2,21 @@ import sys
 import numpy as np
 from datetime import datetime
 import matplotlib.pyplot as plt
-from matplotlib.dates import DateFormatter
+
 import matplotlib.dates as mdates
 from matplotlib.backends.backend_pdf import PdfPages
 import warnings
 from facebook_messenger_conversation import FacebookMessengerConversation
-
 warnings.filterwarnings('ignore', module='matplotlib')
+import matplotlib.font_manager as fm
 
+
+
+
+fontspath='C:/Users/Sophus/Downloads/FacebookChatStatistics-master/FacebookChatStatistics-master/static/'
+
+for font in fm.findSystemFonts(fontspath, fontext="ttf"):
+   fm.fontManager.addfont(font)
 
 def main():
     """
@@ -67,7 +74,6 @@ def main():
             filename = '{}_{}_{}.pdf'.format('facebook_chat_statistics',
                                              start[0:10].replace('-', ''),
                                              end[0:10].replace('-',''))
-
     # Generate PDF
     with PdfPages(filename) as pdf:
         # Plot percentage
@@ -106,6 +112,7 @@ def main():
         pdf.savefig()
         plt.close()
 
+
         # Plot by hour
         hour = list(range(24))
         ax = plt.axes()
@@ -122,6 +129,8 @@ def main():
         plt.tight_layout()
         pdf.savefig()
         plt.close()
+
+
 
         # Plot by weekday
         weekday_labels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday',
@@ -153,7 +162,7 @@ def main():
             plt.bar(x, emoji_count_p[participants[i]],
                     align='center', width=0.8, bottom=emoji_sum)
             emoji_sum = [x + y for x, y in zip(emoji_sum, emoji_count_p[participants[i]])]
-        plt.xticks(x, top_emojis)
+        plt.xticks(x, top_emojis, font = 'Noto Emoji')
         plt.title('Top 10 emojis')
         plt.ylabel('Number of times used')
         plt.legend(participants)
@@ -161,7 +170,9 @@ def main():
         ax.spines['right'].set_visible(False)
         ax.spines['bottom'].set_linewidth(0.5)
         ax.spines['left'].set_linewidth(0.5)
+
         fig = plt.figure(1)
+
         plt.tight_layout()
         pdf.savefig()
         plt.close()

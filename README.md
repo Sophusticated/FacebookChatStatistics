@@ -41,6 +41,16 @@ in your terminal.
 
 ### Download your Facebook conversations to a .json file
 Download your Facebook data by following [these](https://www.facebook.com/help/212802592074644?helpref=uf_permalink) instructions and chosing the format to be JSON. Note that you only have to download your messages in order for this program to work.
+I had to combine my messages to a larger json file using the terminal:
+
+go to the folder where all json files are, select all and rename the first one as "yourchoice", by doing this all will be in sequential order i.e. yourchoice1,yourchoice2 ...
+
+next go to cmd and type : copy *.json "outputfilename".json
+
+All of your json files are merged sequentially into the "outputfilename".json file
+
+### Download the font to show emojis
+If you don't do this, some emojis may not show correctly. You should download this family https://fonts.google.com/noto/specimen/Noto+Emoji and extract it and put them all under a folder named "static" which is inside the same folder as the code. (if it doesn't exist, create it).
 
 ### Run it
 1. First you will have to install the needed packages. These are listed in the `requirements.txt` file and *should* be easily installed using `pip` with

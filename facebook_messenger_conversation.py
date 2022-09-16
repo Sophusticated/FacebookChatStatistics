@@ -1,3 +1,4 @@
+from encodings import utf_8
 import sys
 import numpy as np
 import json
@@ -7,6 +8,9 @@ from matplotlib.backends.backend_pdf import PdfPages
 from datetime import datetime, timedelta
 import matplotlib.dates as mdates
 import emoji
+import unicodedata2
+
+
 
 
 class FacebookMessengerConversation():
@@ -200,6 +204,9 @@ class FacebookMessengerConversation():
             dates[i] = timeline[i].strftime('%Y-%m-%d')
         return timeline, nbr_times_day, nbr_times_weekday, nbr_times_hour
 
+
+
+
     def top_emojis(self, nbr):
         """Returns the top `nbr` emojis used and who sent them.
 
@@ -211,6 +218,47 @@ class FacebookMessengerConversation():
                 these were sent by each participant.
 
         """
+
+
+        
+        def isModifier(strEmo):
+            """
+            This function checks if the emoji is a modifier, so that you can filter out modifiers from the top 10 list
+            False means that it is a modifier / that we are not going to check it.
+            """
+            realemoji = emoji.emojize(strEmo, language = 'alias')
+
+            """
+            Unicode.name does not like strings, and some emojis are made of
+            several unicode characters. That means I need to separate them before
+            checking if they are a modifier
+            """
+            #simple function splitting string into list of chars function
+            def split(word):
+                return [char for char in word]
+
+            listofchars = split(realemoji)
+
+            #newlines break unicodes name function so we just skip them.
+            if listofchars == ['\n']:
+                return False
+
+            if len(listofchars) > 1:
+                #if there are 2 emojis, it is always a combined emoji, with 2 combined emojis where none of them is a modifier
+                #I checked
+                return True
+                
+            else:
+                #empty lists pop up for some reason, but we just skip them"
+                if len(listofchars) == 0:
+                    return False
+                else:
+                    #we now sort away all modifiers or coloured squares, which also almost exclusively function as modifiers
+                    if unicodedata2.name(realemoji).startswith("EMOJI MODIFIER") or unicodedata2.name(realemoji).endswith("SQUARE"):
+                        return False
+                    else:
+                        return True
+
         emojis = {e: 0 for e in iter(emoji.UNICODE_EMOJI['en'].values())}
         emojis_p = {p: 0 for p in self.p}
         for p in emojis_p:
@@ -221,9 +269,11 @@ class FacebookMessengerConversation():
                 sender = message['sender_name']
                 for c in msg:
                     emoji_str = emoji.demojize(c)
-                    if emoji_str in emojis and sender in emojis_p:
-                        emojis_p[sender][emoji_str] += 1
-                        emojis[emoji_str] += 1
+                    if isModifier(emoji_str):
+                        if emoji_str in emojis and sender in emojis_p:
+                            emojis_p[sender][emoji_str] += 1
+                            emojis[emoji_str] += 1
+
         top_emojis = [emoji_key for emoji_key, count in sorted(emojis.items(),
                                        key=lambda kv: (-kv[1], kv[0]))[:nbr]]
         emojis_count_p = {p: {} for p in self.p}
